@@ -1,3 +1,7 @@
+from os import listdir
+from numpy import random
+import json
+
 import nltk
 from nltk.corpus import cmudict
 d = cmudict.dict()
@@ -8,4 +12,45 @@ def count_syllables(sequence):
 def word_to_syllable_counts(word):
     return [count_syllables(variant) for variant in d[word.lower()]]
 
-print word_to_syllable_counts('arithmetic')
+def compile_files(path):
+    files = [f for f in listdir(path)]
+
+    data = ""
+    for f in files:
+        with open(path + "/" + f, "r") as ifp:
+            data += ifp.read() + " "
+    data = unicode(data, "utf-8")
+
+    return data
+
+def extend_markov_chain(cfd, word):
+    samples = []
+    counts = []
+    for w, c in cfd[word].most_common(10):
+        samples.append(w)
+        counts.append(c)
+    total = sum(counts)
+
+    result = {}
+    result["words"] = samples
+    result["dist"] = [float(count) / total for count in counts]
+
+    return result
+
+def write_output(f, obj):
+    with open(f, "w") as ofp:
+        json.dump(obj, ofp)
+
+tokens = nltk.word_tokenize(compile_files("./poems"))
+bigrams = nltk.bigrams(tokens)
+cfd = nltk.ConditionalFreqDist(bigrams)
+
+lookup = {}
+for word in d.keys():
+    markov = extend_markov_chain(cfd, word)
+    if len(markov["words"]) > 0:
+        lookup[word] = {}
+        lookup[word]["syllable_count"] = word_to_syllable_counts(word)[0]
+        lookup[word]["markov_chain"] = markov
+
+write_output("out.json", lookup)
