@@ -48,11 +48,11 @@ def generateCandidate(lookup):
             syllable_count += c
 
         chain = lookup[words[-1]]["markov_chain"]
-        # dist = [1.0 / p for p in chain["dist"]]
-        # s = sum(dist)
-        # dist = [p / s for p in dist]
-        # choice = random.choice(chain["words"], p=dist).lower()
-        choice = random.choice(chain["words"], p=chain["dist"]).lower()
+        dist = [1.0 / p for p in chain["dist"]]
+        s = sum(dist)
+        dist = [p / s for p in dist]
+        choice = random.choice(chain["words"], p=dist).lower()
+        # choice = random.choice(chain["words"], p=chain["dist"]).lower()
         try:
             count = lookup[choice]["syllable_count"]
             words.append(choice)
