@@ -58,6 +58,6 @@ target/
 
 # Poetry
 poems/**
+examples/**
 out.json
-
 poems.zip
