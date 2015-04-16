@@ -4,7 +4,9 @@ import json
 
 import nltk
 from nltk.corpus import cmudict
+
 d = cmudict.dict()
+puncutation = ["\"", "'", ",", "?", ":", ";", ".", "-", "..."]
 
 def count_syllables(sequence):
     return len([phonemes for phonemes in sequence if phonemes[-1].isdigit()])
@@ -18,7 +20,7 @@ def compile_files(path):
     data = ""
     for f in files:
         with open(path + "/" + f, "r") as ifp:
-            data += ifp.read() + " "
+            data += ifp.read().decode("utf-8").replace(u"\u2022", "*").encode("utf-8") + " "
     data = unicode(data, "utf-8")
 
     return data
@@ -26,9 +28,12 @@ def compile_files(path):
 def extend_markov_chain(cfd, word):
     samples = []
     counts = []
-    for w, c in cfd[word].most_common(10):
-        samples.append(w)
-        counts.append(c)
+    for w, c in cfd[word].most_common(1000):
+        if w not in puncutation:
+            samples.append(w)
+            counts.append(c)
+        if len(samples) >= 10:
+            break
     total = sum(counts)
 
     result = {}
