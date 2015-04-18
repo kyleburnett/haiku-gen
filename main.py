@@ -19,6 +19,8 @@ def compile_files(path):
 
     data = ""
     for f in files:
+        if f == '.DS_Store':
+            continue
         with open(path + "/" + f, "r") as ifp:
             data += ifp.read().decode("utf-8").replace(u"\u2022", "*").encode("utf-8") + " "
     data = unicode(data, "utf-8")
