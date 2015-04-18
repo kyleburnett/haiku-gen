@@ -1,6 +1,10 @@
 from numpy import random
 import json
 
+import nltk
+from nltk.corpus import stopwords
+sw = set(stopwords.words('english'))
+
 def getSeed(lookup):
     word = random.choice(lookup.keys())
     return (word, lookup[word]["syllable_count"])
@@ -52,7 +56,6 @@ def generateCandidate(lookup):
         s = sum(dist)
         dist = [p / s for p in dist]
         choice = random.choice(chain["words"], p=dist).lower()
-        # choice = random.choice(chain["words"], p=chain["dist"]).lower()
         try:
             count = lookup[choice]["syllable_count"]
             words.append(choice)
@@ -63,6 +66,13 @@ def generateCandidate(lookup):
             continue
 
         if syllable_count > 17 or tries > 10:
+            words = []
+            syllable_count = 0
+            w, c = getSeed(lookup)
+            words.append(w)
+            syllable_count += c
+
+        if syllable_count == 17 and words[-1] in sw:
             words = []
             syllable_count = 0
             w, c = getSeed(lookup)
